@@ -80,6 +80,7 @@ function Form() {
                 state.upperCase)
         ) {
             setInput(generator(state));
+            setCopied(false);
         } else {
             toast.error("chose one checked field and Password length > 0");
         }
