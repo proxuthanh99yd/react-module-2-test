@@ -1,13 +1,13 @@
+import PropTypes from "prop-types";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { styled } from "styled-components";
 const URL =
     "https://gist.githubusercontent.com/camperbot/5a022b72e96c4c9585c32bf6a75f62d9/raw/e3c6895ce42069f0ee7e991229064f167fe8ccdc/quotes.json";
 export default function RandomQuote() {
-    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-    const [random, setRandom] = useState(randomColor);
-    const [quote, setQuote] = useState({});
+    const [random, setRandom] = useState();
+
     const { data, isLoading } = useQuery({
         queryKey: ["quote"],
         queryFn: async () => {
@@ -17,10 +17,33 @@ export default function RandomQuote() {
     });
 
     if (isLoading) {
-        return <p>Loading</p>;
+        return (
+            <QuoteContainer>
+                <p>Loading</p>
+            </QuoteContainer>
+        );
     }
 
+    return (
+        <QuoteContainer style={{ backgroundColor: "#" + random }}>
+            <Card
+                data={data}
+                style={{ color: "#" + random }}
+                setRandom={setRandom}
+            />
+            <Footer />
+        </QuoteContainer>
+    );
+}
+
+function Card({ style, data, setRandom }) {
+    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+    const [quote, setQuote] = useState({});
     const { quotes } = data;
+
+    useEffect(() => {
+        handleQuote();
+    }, []);
 
     const handleQuote = () => {
         setRandom(randomColor);
@@ -29,20 +52,7 @@ export default function RandomQuote() {
             setQuote(quotes[randomQuote]);
         }
     };
-    return (
-        <QuoteContainer style={{ backgroundColor: "#" + random }}>
-            <Card
-                quote={quote}
-                style={{ color: "#" + random }}
-                handleQuote={handleQuote}
-            />
-            <Footer />
-        </QuoteContainer>
-    );
-}
 
-function Card({ handleQuote, style, quote }) {
-    console.log(quote);
     return (
         <div className="card" style={style}>
             <div className="card-body">
@@ -55,6 +65,11 @@ function Card({ handleQuote, style, quote }) {
         </div>
     );
 }
+Card.propTypes = {
+    data: PropTypes.object,
+    style: PropTypes.object,
+    setRandom: PropTypes.func,
+};
 function Footer() {
     return <div className="footer">Lee tam</div>;
 }
